@@ -60,7 +60,7 @@ class Game:
 
             # Example logic: light up the button that was pressed with a constant color
             button = self.button_pad.get_button(button_number)
-            self.button_pad.set_button_led_color(button, "red")
+            self.button_pad.set_button_led_color(button, "aquamarine")
             self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
 
@@ -69,10 +69,27 @@ class Game:
         _logger.info(f"Button {button.pin.info.number} pressed")
         self.queue.put(button.pin.info.number)
 
-    def when_held(self, button):
-        # TODO: this is called when a button is held. Add what you need to here
-        pass
+        self.button_pad.set_button_led_color(button, "aquamarine")
+        self.speaker.play_preloaded_wav(button.sound, wait_until_done=True)
 
+
+    def when_held(self, button):
+        button_number = button.pin.info.number
+        if button_number == 1:
+            self.initialize_button_pad()
+        elif button_number == 2:
+            for i in range(16):
+                button = self.button_pad.get_button(i)
+                self.button_pad.set_button_led_color(button, button.color)
+        elif button_number == 16:
+            self.play_game = False
+            self.thread.join()
+            self.button_pad.cleanup()
+        else:
+            pass
+
+
+        
     def when_released(self, button):
         # TODO: this is called when a button is released. Add what you need to here
         pass
