@@ -32,6 +32,7 @@ class Game:
         self.started = False
         self.play_game = True
         self.queue = queue.Queue()
+        self.buttonpresses = 0
 
     @property
     def correct_sound(self):
@@ -52,6 +53,9 @@ class Game:
         return "end_of_game"
 
     def _background_logic_checker(self):
+        pressed_before = False
+        previous = None
+
         while self.play_game:
             time.sleep(0.005)  # Prevents busy-waiting
             if self.queue.empty():
@@ -59,23 +63,36 @@ class Game:
             button_number = self.queue.get()
             print(f"Handling button {button_number}")
 
-            # Example logic: light up the button that was pressed with a constant color
 
+            # TODO: check your game state, and update things
             button = (self.button_pad.get_button(button_number))
             self.button_pad.set_button_led_color(button, self.buttons[button_number-1].color)
-            self.speaker.play_preloaded_wav(self.buttons[button_number-1].sound, wait_until_done=True)  # Play a sound when button is pressed
-            # TODO: check your game state, and update things
+            self.speaker.play_preloaded_wav(self.buttons[button_number-1].sound, wait_until_done=True) 
+
+            button = (self.button_pad.get_button(button_number))
+            if pressed_before and self.buttons[button_number-1].color == self.buttons[previous-1].color and previous != button_number:
+                self.buttons[button_number-1].matched = True
+                self.buttons[previous-1].matched = True
+                print("matched")
+            
+            pressed_before = not pressed_before
+            previous = button_number
+
+
             
     def when_pressed(self, button):
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
         self.queue.put(button.pin.info.number)
+        self.buttonpresses += 1
+        print(f"You have made {self.buttonpresses} guesses")
 
 
     def when_held(self, button):
         button_number = button.pin.info.number
         if button_number == 1:
             self.initialize_button_pad()
+            self.buttonpresses = 0
         elif button_number == 2:
             for i in range(16):
                 button = self.button_pad.get_button(i)
