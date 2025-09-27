@@ -4,6 +4,7 @@ import threading
 import time
 import typing
 from dataclasses import dataclass
+from random import *
 
 import library
 from matrix_button_led_controller import MatrixButtonLEDController
@@ -81,6 +82,17 @@ class Game:
         self.button_pad.clear_button_pad()
         # TODO: Set all buttons to a color, List of colors to choose from: https://github.com/waveform80/colorzero/blob/master/colorzero/tables.py#L315
         # sounds are available in the sounds directory
+        self.colors = [
+            "red",
+            "blue",
+            "white",
+            "yellow",
+            "purple",
+            "green",
+            "pink",
+            "black",
+        ]
+
         self.sounds = [
             "thunder2",
             "fart_z",
@@ -92,6 +104,25 @@ class Game:
             "car_horn_x",
         ]
         # TODO: assign to buttons
+        # self.color_and_sound = {}
+
+        # Set color and sound together
+        # PM
+        self.color_and_sound=dict(zip(self.colors, self.sounds))
+        print(self.color_and_sound)
+
+        self.buttons_available=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+
+        for i in range(8):
+            for o in range(2):
+                random_available_button = choice(self.buttons_available)
+                assign_button_number = random_available_button
+                button = self.button_pad.get_button(assign_button_number)
+                self.button_pad.set_button_led_color(button, self.colors[i])
+                self.speaker.play_preloaded_wav(self.color_and_sound[self.colors[i]], wait_until_done=True)  # Play a sound when button is pressed
+                self.buttons_available.remove(random_available_button)
+
+
 
     def _start_game(self):
         self.thread = threading.Thread(target=self._background_logic_checker)
