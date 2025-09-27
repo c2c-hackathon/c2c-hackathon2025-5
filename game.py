@@ -74,33 +74,38 @@ class Game:
         self.queue.put(button.pin.info.number)
 
         button_number = button.pin.info.number
-        if button_number not in self.matched_numbers:
-            self.button_pad.set_button_led_color(button, self.buttons[button_number-1].color)
-            self.buttonpresses += 1
-            print(f"You have made {self.buttonpresses} guesses")
-
-
-            if self.previous != None and self.buttons[button_number-1].color == self.buttons[self.previous.pin.info.number-1].color and self.previous != button:
-                previous_num = self.previous.pin.info.number
-                self.buttons[button_number-1].matched = True
-                self.buttons[previous_num -1].matched = True
-                self.matched_numbers.append(previous_num)
-                self.matched_numbers.append(button_number)
-                print("matched")
-                print(self.matched_numbers)
-
-                self.previous = None
-            elif self.previous == None:
-                self.previous = button
-
+        
         self.speaker.play_preloaded_wav(self.buttons[button_number-1].sound, wait_until_done=False) 
+
+        if button_number in self.matched_numbers :
+            return
+
+        if self.previous == button:
+            print("same")
+            return
+
+        self.button_pad.set_button_led_color(button, self.buttons[button_number-1].color)
+        self.buttonpresses += 1
+        print(f"You have made {self.buttonpresses} guesses")
+
+
+        if self.previous != None and self.buttonpresses % 2 == 0 and self.buttons[button_number-1].color == self.buttons[self.previous.pin.info.number-1].color:
+            previous_num = self.previous.pin.info.number
+            self.buttons[button_number-1].matched = True
+            self.buttons[previous_num -1].matched = True
+            self.matched_numbers.append(previous_num)
+            self.matched_numbers.append(button_number)
+            print("matched")
+            print(self.matched_numbers)
+        elif self.buttonpresses % 2 == 1:
+            self.previous = button
+
 
 
     def when_held(self, button):
         button_number = button.pin.info.number
         if button_number == 1:
             self.initialize_button_pad()
-            self.buttonpresses = 0
         elif button_number == 2:
             for i in range(16):
                 button = self.button_pad.get_button(i)
@@ -121,6 +126,7 @@ class Game:
         button_number = button.pin.info.number
 
         if self.buttonpresses != 0 and self.buttonpresses % 2 == 0 and button_number not in self.matched_numbers:
+            print("Setting to black")
             self.button_pad.set_button_led_color(button, "black")
             self.button_pad.set_button_led_color(self.previous, "black")
     
@@ -186,7 +192,7 @@ class Game:
             input("Press Enter to exit the game...")
         except KeyboardInterrupt:
             print("Exiting game...")
-            self.speaker.play_preloaded_wav(end_of_game_sound(), wait_until_done=True)
+            self.speaker.play_preloaded_wav(self.end_of_game_sound(), wait_until_done=True)
         finally:
             self.play_game = False
             self.thread.join()
