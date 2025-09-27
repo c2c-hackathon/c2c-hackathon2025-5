@@ -63,6 +63,7 @@ class Game:
             button_number = self.queue.get()
             print(f"Handling button {button_number}")
 
+
             # TODO: check your game state, and update things
             button = (self.button_pad.get_button(button_number))
             self.button_pad.set_button_led_color(button, self.buttons[button_number-1].color)
