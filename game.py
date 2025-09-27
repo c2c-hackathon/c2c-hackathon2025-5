@@ -64,14 +64,11 @@ class Game:
             self.button_pad.set_button_led_color(button, "aquamarine")
             self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
-
+            
     def when_pressed(self, button):
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
         self.queue.put(button.pin.info.number)
-
-        self.button_pad.set_button_led_color(button, "aquamarine")
-        self.speaker.play_preloaded_wav(button.sound, wait_until_done=True)
 
 
     def when_held(self, button):
@@ -125,18 +122,18 @@ class Game:
 
         # Set color and sound together
         # PM
+
         self.color_and_sound=dict(zip(self.colors, self.sounds))
         print(self.color_and_sound)
 
         self.buttons_available=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 
+        self.buttons = [None] * 16
+
         for i in range(8):
             for o in range(2):
                 random_available_button = choice(self.buttons_available)
-                assign_button_number = random_available_button
-                button = self.button_pad.get_button(assign_button_number)
-                self.button_pad.set_button_led_color(button, self.colors[i])
-                self.speaker.play_preloaded_wav(self.color_and_sound[self.colors[i]], wait_until_done=True)  # Play a sound when button is pressed
+                self.buttons[random_available_button - 1] = ButtonInfo(color = self.colors[i], sound = self.color_and_sound[self.colors[i]], matched = False)
                 self.buttons_available.remove(random_available_button)
 
 
