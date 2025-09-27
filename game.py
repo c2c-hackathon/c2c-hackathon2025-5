@@ -60,9 +60,10 @@ class Game:
             print(f"Handling button {button_number}")
 
             # Example logic: light up the button that was pressed with a constant color
-            button = self.button_pad.get_button(button_number)
-            self.button_pad.set_button_led_color(button, "aquamarine")
-            self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
+
+            button = (self.button_pad.get_button(button_number))
+            self.button_pad.set_button_led_color(button, self.buttons[button_number-1].color)
+            self.speaker.play_preloaded_wav(self.buttons[button_number-1].sound, wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
             
     def when_pressed(self, button):
